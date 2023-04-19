@@ -1,0 +1,134 @@
+\NewChapter{1}{Manu1}
+
+\counterwithin{figure}{section}
+\begin{center}
+\hspace{}
+\\[1.0 in]
+Discerning Hydroclimatic Behavior \\
+with a Deep Convolutional Residual \\
+Regressive Neural Network
+
+\\[1.0 in]
+
+Albert Eric Larson \\ 
+Abdeltawab Hendawi \\
+Soni Pradhanang \\
+Thomas Boving \\ 
+Ali Shafqat Akanda \\[1.0in]
+\emph{Submitted to MDPI Hydrology}
+\end{center}
+\newpage
+\begin{refsection}
+\subsection{Abstract}
+The impact of human driven climate change continues to manifest itself daily in the form of extreme events and conditions like droughts, floods, heatwaves and storms. These events sustain uncertainty, risk, and loss to the global ecosystem. Better forecasting tools are mandatory to calibrate our response to these events. These tools help adapt to natural hazards in watersheds and adapt to the planet’s dynamic environment. Here, we present a platform based on neural networks called Flux to Flow (F2F) for obtaining, visualizing, and analyzing the basin response of watersheds to water cycle fluxes and their extremes. We examine four United States drainage basins of acreage greater than one million each: Bear, Colorado, Connecticut, and Mississippi. We simulate watershed basin response to the varying climates and magnitudes of hydroclimatic fluxes they face. We combine model and ground observations of water cycle fluxes of precipitation, soil moisture, surface runoff, and sub-surface baseflow. Experiments modulating the lever of time lag between remotely sensed and ground truth measurements are performed to assess the metrological limits of this forecasting device. The resultant grand mean Nash Sutcliffe and Kling Gupta efficiency values are both of greater value than 90\%. Our results show that Flux to Flow can become a powerful resource to simulate and forecast hydroclimatic extremes and resulting watershed responses and natural hazards in a globally changing climate.
+
+\subsection{Keywords}
+water, climate, sustainability, supervised representation learning, societal considerations
+\subsection{Introduction}
+Water is connected to and connects all living things on Earth. It is wielded to power electronic devices, enables plants, food, and animals to grow, serves as the living and recreational space for all creatures, and is nourishment to the human body. It has been both the subject of, platform for, and weapon of choice in numerous conflicts. Global hydraulic infrastructure is highly variable. Dirty water can be a source of disease and death. It is branded, modified, and sold at differing levels of purity and concentration. The cost of equipment to control the flow of water is high, maintenance is frequent, and changes in demand and supply for water as a resource are constant sources of concern. 
+
+Human activities have changed and continue to change Earth’s environment. The changes are visible in both short (meteorological) and long (climatological) time scale responses (\cite{stott2016climate}). As the temperature of our home planet increases, the amount of snow and sea ice loses volume over time (\cite{qin2020agricultural}; \cite{min2022emerging}), sea levels rise and swallow up once inhabited land (\cite{tebaldi2021extreme}; \cite{sevellec2017arctic}), storms intensify (\cite{karl1997coming}), droughts last longer (\cite{underwood2015models}), floods become more severe (\cite{milly2002increasing}; \cite{hirabayashi2013global}), animal populations go extinct (\cite{parmesan2000impacts}), and the availability of freshwater becomes more unreliable (\cite{gleick2021freshwater}). Concurrently, manmade Earth observation and control systems continue to improve (\cite{crisp2020benefits}; \cite{minzu2021optimal}). 
+
+Here, we approach the topic of watershed modeling with a deep neural network. We observe the connections between model output of four United States drainage basins to actual gauged in the river measurements. All basins are larger than a million acres and thus provide ample data to observe how changes in runoff and subsurface flow impacts the quantity of water discharging from the major river within the basin. Given our results, we envision future work applying the same tools to study and consider all of Earth’s watersheds at fine fidelity.
+
+\subsection{Materials \& Methods}
+\subsubsection{Study Areas}
+Four United States drainage basins with areas of greater than one million acres each were selected as study areas and are shown in Figure \ref{fig1_1}. The Bear River and Connecticut River watersheds are significantly smaller than either the Mississippi River or the Colorado River basins. The satellite imagery used observes approximately 100 square kilometers of area (on the order of 25,000 acres) in each pixel. 
+
+
+\subsubsection{Satellite Derived Observations}
+For each basin there are two input images extracted from raw data obtained through the NASA Goddard Earth Sciences Data and Information Services Center. The raw data is National Land Data Assimilation System (NLDAS) model output. NLDAS is a project run by several United States based institutions and universities. NLDAS takes continental scale meteorological data parameters (e.g., air temperature, wind speed, surface pressure, precipitation, incoming radiation, specific humidity) as input and deterministically creates water and energy flux layers as outputs. The NLDAS project in its second phase applies several different water and energy balance algorithms to create flux outputs from one common set of meteorological inputs. Here, the Noah water and energy budget algorithm is used. The channels of interest are components of water flux, specifically surface and sub-surface runoff, as they collectively represent the lateral movement of liquid water along and under the surface towards the terminal drainage point at a given point in time (\cite{xia2012continental}; \cite{liang1994simple}).
+
+\subsubsection{Ground Truth Measurements}
+Concurrent with the two NLDAS channels is a single gauged in the river streamflow measurement. Daily streamflow measurements from sites near the terminus of each basin are obtained from the United States Geological Survey’s National Water Information System. The USGS operates nearly 30,000 daily streamflow data collectors (\cite{edwards1986conceptual}). Sites were selected based on the availability, proximity to the terminal point of the basin, and relative continuity of data. Gaps in data collection are solved with linear interpolation. 
+
+\subsubsection{Data Collection and Preprocessing}
+For this study, we looked at the time range starting on January 1, 2015, until the most recent output available, March 1, 2022. The NLDAS model output is available in a monthly and hourly product. We combine the hourly data available for surface and subsurface streamflow into a daily product. The raw hourly NLDAS product with all variables is a directory sized 351 gigabytes comprised of 62,805 hourly files. The summing and extraction of lateral flows shrunk the total file size by a factor of more than 150. Each raw data file consumes 5.8 megabytes of disk space, while each daily surface and subsurface flow extraction 822.7 kilobytes. Filtered data consumes only 2.1 gigabytes and can easily be held on a graphical processing unit when trained with the neural network. File size decreases further when clipped to a particular basin. Images are z-scored relative to themselves, while gauged streamflow data is z-scored relative to the entire time series of seven years. Whitening has been shown to improve the performance of training a neural network (\cite{karhunen1997class}; \cite{chen2020concept}).
+
+\subsubsection{Treatment}
+For this experiment, we constructed a deep, convolutional, residual, regressive neural network. The images of Earth’s surface and subsurface water flow are passed through this network. Eventually, the transformed images reach a destination where the image shapes have been constrained in size to match that of the target of the input pair; here, the target is one pixel as the daily value for gauged streamflow is a single physical measurement. The problem is one of regression because the prediction of streamflow is continuous and can theoretically be any value greater than zero. We use convolutional neural networks because our input to the network is a sequence of two channel images (\cite{rawat2017deep}). We also use residual learning, which allows us to make the network very deep but control the opacity of the initial structure of the image. This makes training faster (\cite{he2016deep}). Rectified linear unit activation functions are applied in all but the last layer of nodes, and batch normalization is used in the residual layers (\cite{agarap2018deep}; \cite{ioffe2015batch}). Batch normalization is like the z-score treatment in our preprocessing step. Finally, we selected a variant of stochastic gradient descent for optimization of the neural network nodes (\cite{amari1993backpropagation}; \cite{kingma2014adam}).
+
+\subsection{Results}
+Hourly NLDAS model outputs of surface and subsurface flow are summed to daily accumulations over the time span of January 1st, 2015, to March 1st, 2022. This time series is 2,617 long comprised of two channel images. Channels are surface and subsurface flow measured in units in kilograms per square meter. Units are analogous to the weight of water in a location. Sample observation output from each basin capturing flow behavior on June 6th, 2021, is displayed in Figure \ref{fig1_2}. The effects of spatial resolution are apparent, as the Bear River and Connecticut River basins have pronounced rectangular edges due to their relatively small size. This pixelation effect is not present in the Mississippi River and Colorado River observations of lateral flow from the basin view at this constrained figure size.
+
+Gauged streamflow measurements of the four target rivers are significantly different in magnitude from one another; therefore, we process each with a z-score treatment to center their mean values around the number zero and standardize each increasing and decreasing integer around intervals of standard deviation. Figure \ref{fig1_3} shows plots of the gauged streamflow measurements of each basin are plotted in two ways. The four individual strip charts show the change in streamflow over time, and the single overlapping histograms show how often actual measurements in the respective basin occur relative to the average discharge. This is a single dimensional z-scoring system. We also perform a two dimensional treatment to each of the input channels, surface, and subsurface streamflow. Whereas the 1-D treatment uses the entire time series of gauged streamflow measurements for computation, 2-D z-scores are computed based on a single image at a time. Modifiable hyperparameters controls of the network are basin under observation, lag in time between input and output datasets, number of training epochs (forward and backward passes of the neural network) and the ratio of training data to testing data. There is also an override for stopping the model training early when the training data has a Nash Sutcliffe efficiency (NSE) value of a variable efficiency percentage.
+
+Figure \ref{fig1_4} shows a sample output from one configuration of the neural network. The topmost graph illustrates the time series of discharge measurements in cubic feet per second of the Bear River. This graph is rotated ninety degrees relative to its sibling hydrograph in Figure \ref{fig1_3}. There is a notable seasonality to this streamflow measurement of Bear. Spring brings melting snowpack in the nearby mountainous terrain and subsequent increases in neighboring river flows. Spring melting snow in 2021 appears more subdued than all other years observed. The Bear River drainage basin is located in between the Great Salt Lake and Yellowstone National Park in the Rocky Mountain region of the United States. The eponymously named river flows in a counterclockwise loop.
+
+The second row plots each modeled observation in the time series against its respective actual measurement. On the left is a study of the model output ordered on the x-axis from low to high flows and corresponding actual measurement on the y-axis. The right plot retains the same axis labels, but instead observes spatial proximity of values. Darker points are more commonly occurring ranges of flow. The left plot also contains two lines of best fit, the ideal or desired line found from the data, and the actual line of fit as exists between the actual gauged streamflow and the neural network model output of streamflow from surface and subsurface flow.
+
+The third and final row shows epochal values during the neural network training process. On the left, the average error between the actual measurements and network output declines as the model goes through its iterations of propagate and backpropagate. Concomitant with error vs. epoch is efficiency vs. epoch. As the error declines towards zero, the NSE measurement increases towards 100\%. Here, neural network set to stop at an NSE value of 95\%, which occurs in the sixth epoch.
+
+We perform nine iterations of the configuration of 252 experiments. For each of the four basins, there are sixty three experiments per iteration based on nine possible values of lag and seven possible values of training and test data split, equating to 2,268 individual runs of the same neural network. Each experiment either stops when the measurement of average NSE of the training dataset within an epoch equals 95\% (bottom right, Figure \ref{fig1_4}) or the total number of epochs of back and forward propagation of the entire basin dataset reaches 100. Computations are constrained to a single node with two central processing units, a single NVIDIA GeForce RTX 2080 Ti graphical processing unit, and no more than 130 gigabytes of random access memory. Our platform is written in the python programming language and managed with the miniconda package manager. The total run time to compute the experiments within was 83.0 hours.
+
+\subsection{Discussion}
+
+The results presented indicate relatively favorable performance of the neural network architecture when transforming of surface and subsurface flow into a prediction of basin gauged streamflow; the kernel density estimates (KDE) in Figure \ref{fig1_5} and Figure \ref{fig1_6} illustrate this point. We executed a total of more than 2,200 experiments in total using the common architecture. We use two hydrological metrics: Kling Gupta (KGE) and Nash Sutcliffe (NSE) (\cite{nash1970river}; \cite{gupta2009decomposition}; \cite{gupta2011typical}; \cite{knoben2019inherent}). For each of these metrics, the peak resultant merit value of the 2,268 experiments is greater than ninety percent with a standard deviation of less than 0.06. The results are tolerant to lagging the data beyond the residence time of water in the atmosphere (\cite{van2017residence}; \cite{gimeno2021residence}).
+
+Others have observed the changing water quantity of the Mississippi. One study used NLDAS data focused on a subsection of the Mississippi with a higher quantity of streamflow target sites (\cite{qi2019use}). Another group considers a different data system altogether for watershed modeling on the upper Mississippi basin (\cite{chen2021effect}). Some groups suggest that NLDAS is too simplistic and decided to create their own blend. They take a much broader approach than the scope of the problem observed here (\cite{tran2022hydrological}). The same is true for another study, where the study considers several different models and about 1,000 small river basins (\cite{cai2014assessment}). Some use meteorological data as a predictor for electric outages, as seen in a study looking at Connecticut. They, too, use the Nash Sutcliffe efficiency as a figure of merit (\cite{yang2021effect}) but are approaching the problem with a different lens. Their target is a smaller population and the risk of being without electric power.
+
+This process can be expanded in different ways. Our study relies on the internal programming of NLDAS to compute surface and subsurface flow. There is much uncertainty in these observations based on the natural heterogeneity of the land surface. We do not look at the independent influence of any single forcing variable. Take snow, for example. In large mountain proximal basins such as those near the Rocky Mountains or Himalayan ranges, accumulation of subzero degrees Celsius water in solid form provides a continuous upland buffer tank for the communities with which the river down land serves. As the relative presence of carbon dioxide increases and the land temperature responds in agreement, the duration and scale of snow melt and sea ice responds. It is challenging to equate with exact certainty how much solid water exists. To a degree, interpolating satellite data with gauged data is sufficient, but these apparatuses are challenging to maintain in cold temperatures or in places of very high altitude. One could elect to observe more individual locations as targets, therefore making the relationship no longer image to single value at a given time, but instead image to image. There are studies that consider the impact of slow moving oceanic and atmospheric abnormalities upon the hydrology of the land. Independent variables include the Madden-Julian oscillation (\cite{jiang2020fifty}), the El Niño–Southern Oscillation (\cite{hu2015pacific}), and the Atlantic meridional overturning circulation (\cite{ionita2022long}).
+
+While the NLDAS product used here is of a particular spatial fidelity, the Global Land Data Assimilation System is coarser in its resolution. It is beneficial to the scientific community to have a clearer picture of the meteorological forcing and environmental responses in the ocean, land, air, and mixed interfaces. One could use this framework to fuse the high resolution NLDAS product with the global GLDAS product and evaluate the result according to one common set of metrics. The software could be packaged and ported to use with an already existent embedded in situ mesh system to provide forecasting information. Instead, one might consider looking at a different time signature, such as seasonally decomposed but over several years. Instead, one might introduce higher resolution localized water quality data into the model. By tracking environmental statistical anomalies relative to other points in time and relative to the global community, municipal decision makers can clue into the trajectory of their land, their structures, and their constituents within. The choice to retreat is not to be approached lightly, but in some instances is becoming the necessary measure (\cite{siders2019social}; \cite{hino2017managed}). This intelligence can also be placed in the hands of consulting engineers to distribute in new and existing infrastructure. Logic is necessary to manage assets of complex hydraulic systems (pumps, motors, chemical feed, aeration, dewatering, gates, valves), and digital twin systems are becoming fashionable.
+
+Lessons must be learned from events on both sides of the water quantity spectrum such as the 2022 Pakistan and Mississippi floods on one end and the 2017 Cape Town South Africa water crisis on the other. The opportunities to improve our monitoring systems are many; however, more people are needed in the conversation to consider how we might better cooperate with the environment.
+
+\subsection{Conclusion}
+Using modern techniques and data systems, we introduce a fresh perspective to studying and understanding the water cycle with a learned representation. Our results show that a deep convolutional residual regressive neural network combined with water flux and gauged streamflow data comes to an optimized state, exhibiting strong forecasting performance according to standard hydrological statistical figures of merit. Through the careful use of visuals and data management, this solution is poised to approach with success other locations, degrees of fidelity, time scales, and parameters of interest in the greater climate observatory community.
+
+\newpage
+\subsection{Code Availability}
+Scripts are available at \url{https://github.com/albertlarson/f2f}
+
+\subsection{References}
+
+\printbibliography[heading=none]
+\end{refsection}
+
+\newpage
+\subsection{Appendix}
+
+\begin{figure}[!ht]
+	\centering
+    \caption{Drainage basins under investigation}
+	\includegraphics[width=1.0\linewidth]{m1/ims/fig1_1.png}
+    \label{fig1_1}
+\end{figure}
+
+\begin{figure}[!ht]
+	\centering
+    \caption{NLDAS daily surface and subsurface flows}
+	\includegraphics[width=1.0\linewidth]{m1/ims/fig1_2.png}
+    \label{fig1_2}
+\end{figure}
+
+\begin{figure}[!ht]
+	\centering
+    \caption{Strip chart and histogram plots of z-scored gauged streamflow observations}
+	\includegraphics[width=1.0\linewidth]{m1/ims/fig1_3.png}
+    \label{fig1_3}
+\end{figure}
+
+\begin{figure}[!ht]
+	\centering
+    \caption{Neural network sample output}
+	\includegraphics[width=1.0\linewidth]{m1/ims/fig1_4.png}
+    \label{fig1_4}
+\end{figure}
+
+\begin{figure}[!ht]
+	\centering
+    \caption{Kernel Density Estimates of the 2,268 experiments. Left shows grand NSE and KGE.}
+	\includegraphics[width=1.0\linewidth]{m1/ims/fig1_5.png}
+    \label{fig1_5}
+\end{figure}
+
+\begin{figure}[!ht]
+	\centering
+    \caption{3-D merit plots, basin delineated by color. Intensity of color indicates higher frequency within bin range.}
+	\includegraphics[width=1.0\linewidth]{m1/ims/fig1_6.png}
+    \label{fig1_6}
+\end{figure}
+
+
+
